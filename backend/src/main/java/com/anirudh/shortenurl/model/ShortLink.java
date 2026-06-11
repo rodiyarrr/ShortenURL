@@ -25,7 +25,7 @@ public class ShortLink {
 
     @NotBlank
     @Column(nullable = false,unique = true)
-    private String shortenedURL;
+    private String shortCode;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "userName", nullable = true)

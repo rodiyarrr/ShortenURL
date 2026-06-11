@@ -2,13 +2,22 @@ package com.anirudh.shortenurl.service;
 
 import com.anirudh.shortenurl.dto.request.ShortenRequestDTO;
 import com.anirudh.shortenurl.dto.response.ShortenResponseDTO;
+import com.anirudh.shortenurl.model.ShortLink;
 import com.anirudh.shortenurl.repository.ShortLinkRepository;
 import com.anirudh.shortenurl.util.ShortURLGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class ShortenURLService {
+
+    //To import this value from application.properties
+    @Value("${app.base-url}")
+    private String baseURL;
 
     @Autowired
     public ShortLinkRepository repository;
@@ -17,5 +26,45 @@ public class ShortenURLService {
 
     public ShortenResponseDTO shorten(ShortenRequestDTO request) {
 
+        String shortCode;
+        //Generate Short Code
+        do {
+            shortCode=generator.generate();
+        }while (repository.existsByShortCode(shortCode));
+        //jab tak aisa short-code exist krta hai DB mai, naya code banate raho jisse duplicates na ho
+
+        ShortLink shortLink=new ShortLink();
+
+        shortLink.setUserURL(request.getUserURL());
+        shortLink.setShortCode(shortCode);
+        // DB mai shortCode hi save karte bas not the whole URL, since aage jake koi Domain change ho toh ek jagah hi hojaye changes
+        shortLink.setCreatedAt(LocalDateTime.now());
+
+        //Save to DB
+        repository.save(shortLink);
+
+        ShortenResponseDTO responseDTO=new ShortenResponseDTO();
+        responseDTO.setShortenedURL(baseURL+"/"+shortCode);
+
+        return responseDTO;
+    }
+
+    public String getOriginalURL(String shortCode) {
+        ShortLink shortLink = repository.findByShortCode(shortCode)
+                .orElseThrow(() -> new RuntimeException("Short URL not found"));
+
+        if (!shortLink.isActive()){
+            throw new RuntimeException("Short URL is inactive");
+        }
+
+        if (shortLink.getExpiresAt() != null
+                && shortLink.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Short URL has expired");
+        }
+
+        shortLink.setClickCount(shortLink.getClickCount()+1);
+        repository.save(shortLink);
+
+        return shortLink.getUserURL();
     }
 }
