@@ -2,15 +2,15 @@ package com.anirudh.shortenurl.service;
 
 import com.anirudh.shortenurl.dto.request.ShortenRequestDTO;
 import com.anirudh.shortenurl.dto.response.ShortenResponseDTO;
+import com.anirudh.shortenurl.exceptions.InvalidURLException;
+import com.anirudh.shortenurl.exceptions.URLExpiredException;
 import com.anirudh.shortenurl.model.ShortLink;
 import com.anirudh.shortenurl.repository.ShortLinkRepository;
 import com.anirudh.shortenurl.util.ShortURLGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class ShortenURLService {
@@ -51,15 +51,15 @@ public class ShortenURLService {
 
     public String getOriginalURL(String shortCode) {
         ShortLink shortLink = repository.findByShortCode(shortCode)
-                .orElseThrow(() -> new RuntimeException("Short URL not found"));
+                .orElseThrow(() -> new InvalidURLException("Invalid URL"));
 
         if (!shortLink.isActive()){
-            throw new RuntimeException("Short URL is inactive");
+            throw new URLExpiredException("Short URL is inactive");
         }
 
         if (shortLink.getExpiresAt() != null
                 && shortLink.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Short URL has expired");
+            throw new URLExpiredException("Short URL has expired");
         }
 
         shortLink.setClickCount(shortLink.getClickCount()+1);
