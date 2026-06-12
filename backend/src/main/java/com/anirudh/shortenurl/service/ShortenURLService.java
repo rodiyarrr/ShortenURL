@@ -59,7 +59,11 @@ public class ShortenURLService {
         }
 
         //Save to DB
-        repository.save(shortLink);
+//        repository.save(shortLink);
+
+        ShortLink saved = repository.save(shortLink);
+        System.out.println("Saved shortCode: " + saved.getShortCode());
+
 
         ShortenResponseDTO responseDTO=new ShortenResponseDTO();
         responseDTO.setShortenedURL(baseURL+"/"+shortCode);
@@ -69,6 +73,9 @@ public class ShortenURLService {
     }
 
     public String getOriginalURL(String shortCode) {
+
+        System.out.println("Finding shortCode: " + shortCode);
+
         ShortLink shortLink = repository.findByShortCode(shortCode)
                 .orElseThrow(() -> new InvalidURLException("Invalid URL"));
 

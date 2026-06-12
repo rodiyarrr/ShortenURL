@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.net.URI;
 
 @RestController
@@ -17,11 +16,9 @@ public class GetOriginalURLController {
     public ShortenURLService shortenURLService;
 
     @GetMapping("/api/{shortCode}")
-    public ResponseEntity<Void> getOriginalURL(@PathVariable String shortCode){
+    public ResponseEntity<String> getOriginalURL(@PathVariable String shortCode){
         String originalURL=shortenURLService.getOriginalURL(shortCode);
 
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create(originalURL))
-                .build();
+        return ResponseEntity.ok(originalURL);
     }
 }
