@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ShortenurlApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(ShortenurlApplication.class, args);
 	}
 

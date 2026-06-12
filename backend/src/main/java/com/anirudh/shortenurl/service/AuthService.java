@@ -11,15 +11,19 @@ import com.anirudh.shortenurl.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class AuthService {
     @Autowired
     public UserRepository userRepository;
 
+
     @Autowired
-    public BCryptPasswordEncoder passwordEncoder;
+    public PasswordEncoder passwordEncoder;
 
     public AuthResponseDTO signupService(@Valid SignupDTO signupDTO){
         if (userRepository.existsByUserName(signupDTO.getUserName())){
@@ -63,5 +67,15 @@ public class AuthService {
         response.setUserName(user.getUserName());
 
         return response;
+    }
+
+    public User createGuestUser(){
+        User guest=new User();
+        guest.setUserName("guest_"+ UUID.randomUUID().toString().substring(0,8));
+        guest.setPasswordHash("");
+        guest.setEmail(guest.getUserName()+"@anirudh.com");
+        guest.setRole(Role.GUEST);
+        userRepository.save(guest);
+        return guest;
     }
 }

@@ -16,7 +16,7 @@ public class GetOriginalURLController {
     @Autowired
     public ShortenURLService shortenURLService;
 
-    @GetMapping("/{shortCode}")
+    @GetMapping("/api/{shortCode}")
     public ResponseEntity<Void> getOriginalURL(@PathVariable String shortCode){
         String originalURL=shortenURLService.getOriginalURL(shortCode);
 

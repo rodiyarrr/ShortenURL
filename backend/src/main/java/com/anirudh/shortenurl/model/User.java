@@ -29,7 +29,6 @@ public class User {
 
     private Role role;
 
-    @NotBlank
     @Column(nullable = false)
     private String passwordHash;
 

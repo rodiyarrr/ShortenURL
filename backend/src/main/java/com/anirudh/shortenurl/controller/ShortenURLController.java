@@ -17,7 +17,7 @@ public class ShortenURLController {
 
     @PostMapping
     public ShortenResponseDTO shortenURL(@Valid @RequestBody ShortenRequestDTO request){
-        return shortenURLService.shorten(request);
+        return shortenURLService.shorten(request,null);
     }
 
 }

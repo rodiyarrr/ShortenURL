@@ -1,6 +1,7 @@
 package com.anirudh.shortenurl.repository;
 
 import com.anirudh.shortenurl.model.ShortLink;
+import com.anirudh.shortenurl.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,5 @@ public interface ShortLinkRepository extends JpaRepository<ShortLink, UUID> {
 
     // To handle null values from the DB
     Optional<ShortLink> findByShortCode(String shortCode);
+
 }

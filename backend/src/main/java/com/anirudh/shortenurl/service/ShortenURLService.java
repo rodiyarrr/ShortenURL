@@ -5,7 +5,9 @@ import com.anirudh.shortenurl.dto.response.ShortenResponseDTO;
 import com.anirudh.shortenurl.exceptions.InvalidURLException;
 import com.anirudh.shortenurl.exceptions.URLExpiredException;
 import com.anirudh.shortenurl.model.ShortLink;
+import com.anirudh.shortenurl.model.User;
 import com.anirudh.shortenurl.repository.ShortLinkRepository;
+import com.anirudh.shortenurl.repository.UserRepository;
 import com.anirudh.shortenurl.util.ShortURLGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,13 +22,18 @@ public class ShortenURLService {
     private String baseURL;
 
     @Autowired
+    public UserRepository userRepository;
+    @Autowired
     public ShortLinkRepository repository;
+    @Autowired
+    public AuthService authService;
     @Autowired
     public ShortURLGenerator generator;
 
-    public ShortenResponseDTO shorten(ShortenRequestDTO request) {
+    public ShortenResponseDTO shorten(ShortenRequestDTO request,String userName) {
 
         String shortCode;
+
         //Generate Short Code
         do {
             shortCode=generator.generate();
@@ -40,11 +47,23 @@ public class ShortenURLService {
         // DB mai shortCode hi save karte bas not the whole URL, since aage jake koi Domain change ho toh ek jagah hi hojaye changes
         shortLink.setCreatedAt(LocalDateTime.now());
 
+        // Guest ya registered user
+        if (userName == null) {
+            User guest = authService.createGuestUser();
+            shortLink.setUser(guest);
+            shortLink.setExpiresAt(LocalDateTime.now().plusHours(24));
+        } else {
+            userRepository.findByUserName(userName)
+                    .ifPresent(shortLink::setUser);
+            shortLink.setExpiresAt(null);
+        }
+
         //Save to DB
         repository.save(shortLink);
 
         ShortenResponseDTO responseDTO=new ShortenResponseDTO();
         responseDTO.setShortenedURL(baseURL+"/"+shortCode);
+        responseDTO.setExpiresAt(shortLink.getExpiresAt());
 
         return responseDTO;
     }
@@ -67,4 +86,5 @@ public class ShortenURLService {
 
         return shortLink.getUserURL();
     }
+
 }
