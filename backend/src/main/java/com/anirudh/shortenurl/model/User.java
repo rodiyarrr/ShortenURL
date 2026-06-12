@@ -1,9 +1,6 @@
 package com.anirudh.shortenurl.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -11,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,9 +19,15 @@ import lombok.Setter;
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID userId;
+
+
     @Size(min = 3,max = 30)
     @Column(unique = true,nullable = false)
     private String userName;
+
+    private Role role;
 
     @NotBlank
     @Column(nullable = false)
