@@ -21,6 +21,8 @@ public class AuthService {
     @Autowired
     public UserRepository userRepository;
 
+    @Autowired
+    public JwtService jwtService;
 
     @Autowired
     public PasswordEncoder passwordEncoder;
@@ -46,6 +48,7 @@ public class AuthService {
         AuthResponseDTO responseDTO=new AuthResponseDTO();
         responseDTO.setMessage("User Registered successfully");
         responseDTO.setUserName(user.getUserName());
+        responseDTO.setToken(jwtService.generateToken(user.getUserName()));
 
         return responseDTO;
 
@@ -65,6 +68,7 @@ public class AuthService {
         AuthResponseDTO response = new AuthResponseDTO();
         response.setMessage("Login successful");
         response.setUserName(user.getUserName());
+        response.setToken(jwtService.generateToken(user.getUserName()));
 
         return response;
     }
