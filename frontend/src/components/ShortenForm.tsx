@@ -23,7 +23,7 @@ export function ShortenForm() {
     setLoading(true);
     try {
       const result = await shortenUrl(trimmed);
-      setShortUrl(result.shortUrl);
+      setShortUrl(result.shortenedURL);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
