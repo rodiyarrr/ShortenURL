@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.swing.text.html.Option;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,4 +18,8 @@ public interface ShortLinkRepository extends JpaRepository<ShortLink, UUID> {
     // To handle null values from the DB
     Optional<ShortLink> findByShortCode(String shortCode);
 
+    //To find all links shortened by a particular user
+    List<ShortLink> findByUser_UserName(String userName);
+
+    void delete(ShortLink shortLink);
 }

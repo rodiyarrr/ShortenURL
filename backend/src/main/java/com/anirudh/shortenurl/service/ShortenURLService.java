@@ -1,6 +1,7 @@
 package com.anirudh.shortenurl.service;
 
 import com.anirudh.shortenurl.dto.request.ShortenRequestDTO;
+import com.anirudh.shortenurl.dto.response.LinkResponseDTO;
 import com.anirudh.shortenurl.dto.response.ShortenResponseDTO;
 import com.anirudh.shortenurl.exceptions.InvalidURLException;
 import com.anirudh.shortenurl.exceptions.URLExpiredException;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ShortenURLService {
@@ -92,6 +95,25 @@ public class ShortenURLService {
         repository.save(shortLink);
 
         return shortLink.getUserURL();
+    }
+
+    public List<LinkResponseDTO> getAllLinks(String userName){
+        List<LinkResponseDTO> allLinks=repository.findByUser_UserName(userName)
+                .stream().map(link -> {LinkResponseDTO dto=new LinkResponseDTO();
+                dto.setShareCode(link.getShortCode());
+                dto.setUserURL(link.getUserURL());
+                dto.setClickCount(link.getClickCount());
+                dto.setExpiresAt(link.getExpiresAt());
+                dto.setCreatedAt(link.getCreatedAt());
+                return dto;
+                }).toList();
+
+        return allLinks;
+    }
+
+    public void deleteLink(String shortCode){
+        ShortLink linkToBeDeleted=repository.findByShortCode(shortCode).orElseThrow(() -> new InvalidURLException("Invalid Short Code"));
+        repository.delete(linkToBeDeleted);
     }
 
 }
