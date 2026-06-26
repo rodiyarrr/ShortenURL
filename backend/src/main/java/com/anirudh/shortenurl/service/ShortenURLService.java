@@ -100,7 +100,7 @@ public class ShortenURLService {
     public List<LinkResponseDTO> getAllLinks(String userName){
         List<LinkResponseDTO> allLinks=repository.findByUser_UserName(userName)
                 .stream().map(link -> {LinkResponseDTO dto=new LinkResponseDTO();
-                dto.setShareCode(link.getShortCode());
+                dto.setShortCode(link.getShortCode());
                 dto.setUserURL(link.getUserURL());
                 dto.setClickCount(link.getClickCount());
                 dto.setExpiresAt(link.getExpiresAt());

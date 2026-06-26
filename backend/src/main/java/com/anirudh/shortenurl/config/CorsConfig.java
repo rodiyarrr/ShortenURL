@@ -16,7 +16,7 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOriginPatterns("http://localhost:*")
-                        .allowedMethods("GET","POST")
+                        .allowedMethods("GET","POST","DELETE")
                         .allowedHeaders("*");
             }
         };
