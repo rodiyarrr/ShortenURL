@@ -1,38 +1,43 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { signup } from "@/lib/api";
-import { saveAuth } from "@/lib/auth";
 
 const inputClassName =
   "w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-2.5 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500";
 
 export function SignupPage() {
-  const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-
-    const trimmedUserName = userName.trim();
-    const trimmedEmail = email.trim();
-    if (!trimmedUserName || !trimmedEmail || !password) {
-      setError("Username, email, and password are required.");
-      return;
-    }
-
     setLoading(true);
+
     try {
-      const result = await signup(trimmedUserName, trimmedEmail, password);
-      saveAuth(result.token, result.userName);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userName, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message ?? "Signup failed. Please try again.");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.userName);
       navigate("/");
+
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -43,59 +48,62 @@ export function SignupPage() {
       <Header />
       <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
-          <div className="mb-6 text-center">
-            <h1 className="text-2xl font-semibold text-zinc-100">Sign up</h1>
-            <p className="mt-2 text-sm text-zinc-400">
-              Create an account to get started.
-            </p>
-          </div>
+          <h1 className="text-2xl font-semibold text-zinc-100 text-center">Sign up</h1>
+          <p className="mt-2 text-sm text-zinc-400 text-center">
+            Create your account
+          </p>
 
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-lg shadow-black/20">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-zinc-400">Username</label>
               <input
                 type="text"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                placeholder="Username"
-                autoComplete="username"
-                className={inputClassName}
+                placeholder="anirudh"
+                className="rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-2.5 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
                 disabled={loading}
               />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-zinc-400">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                autoComplete="email"
-                className={inputClassName}
+                placeholder="anirudh@gmail.com"
+                className="rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-2.5 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
                 disabled={loading}
               />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-zinc-400">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                autoComplete="new-password"
-                className={inputClassName}
+                placeholder="••••••••"
+                className="rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-2.5 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
                 disabled={loading}
               />
-              <button
-                type="submit"
-                disabled={loading}
-                className="mt-1 rounded-lg bg-zinc-100 px-5 py-2.5 font-medium text-zinc-900 transition-colors hover:bg-zinc-300 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {loading ? "Creating account…" : "Sign up"}
-              </button>
-            </form>
+            </div>
 
             {error && (
-              <p className="mt-3 text-sm text-red-400" role="alert">
-                {error}
-              </p>
+              <p className="text-sm text-red-400" role="alert">{error}</p>
             )}
-          </div>
 
-          <p className="mt-6 text-center text-sm text-zinc-400">
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-lg bg-zinc-100 px-5 py-2.5 font-medium text-zinc-900 transition-colors hover:bg-zinc-300 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Creating account…" : "Sign up"}
+            </button>
+          </form>
+
+          <p className="mt-4 text-center text-sm text-zinc-400">
             Already have an account?{" "}
             <Link to="/login" className="text-zinc-100 hover:underline">
               Log in
