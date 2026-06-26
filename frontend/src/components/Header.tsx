@@ -1,14 +1,12 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { clearAuth, getAuthUserName } from "@/lib/auth";
 
 export function Header() {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState(getAuthUserName);
+  const userName = localStorage.getItem("userName");
 
   function handleLogout() {
-    clearAuth();
-    setUserName(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
     navigate("/");
   }
 
@@ -17,16 +15,23 @@ export function Header() {
       <Link to="/" className="text-lg font-semibold tracking-tight text-zinc-100">
         ShortenURL
       </Link>
+
       <nav className="flex items-center gap-4 text-sm">
         {userName ? (
           <>
-            <span className="text-zinc-400">{userName}</span>
-            <button
-              type="button"
-              onClick={handleLogout}
+            <Link
+              to="/dashboard"
               className="text-zinc-400 transition-colors hover:text-zinc-100"
             >
-              Log out
+              My Links
+            </Link>
+            <span className="text-zinc-500">|</span>
+            <span className="text-zinc-400">{userName}</span>
+            <button
+              onClick={handleLogout}
+              className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-100"
+            >
+              Logout
             </button>
           </>
         ) : (
